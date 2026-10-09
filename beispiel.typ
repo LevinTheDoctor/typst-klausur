@@ -32,7 +32,6 @@
   art: "freitext",
   punkte: 5,
   frage: [Erklären Sie in eigenen Worten, was ein Grenzwert einer Folge ist.],
-  zeilen: 8,
   antwort: [Ein Grenzwert $a$ ist eine Zahl, der sich die Folgenglieder beliebig nahe annähern: ab einem Index $N$ gilt $|a_n - a| < epsilon$.],
 )
 
@@ -41,6 +40,5 @@
   art: "mathe",
   punkte: 4,
   frage: [Berechnen Sie die Ableitung von $f(x) = x^3 sin(x)$.],
-  hoehe: 6cm,
   antwort: [$f'(x) = 3x^2 sin(x) + x^3 cos(x)$],
 )
