@@ -87,8 +87,8 @@
 ///   Indizes der rechten Spalte, je einer pro linkem Eintrag; sonst Content)
 /// - optionen: Antwortoptionen (mc)
 /// - links, rechts: Spalten der Zuordnung
-/// - zeilen: Zeilenzahl des Freitextfelds
-/// - hoehe: Höhe des Rechenfelds (mathe)
+/// - zeilen: Zeilenzahl des Freitextfelds (auto: doppelt so hoch wie die Lösung)
+/// - hoehe: Höhe des Rechenfelds, mathe (auto: doppelt so hoch wie die Lösung)
 #let aufgabe(
   titel: "",
   art: "freitext",
@@ -98,8 +98,8 @@
   optionen: (),
   links: (),
   rechts: (),
-  zeilen: 8,
-  hoehe: 6cm,
+  zeilen: auto,
+  hoehe: auto,
 ) = {
   assert(
     art in ("mc", "zuordnung", "freitext", "mathe"),
@@ -140,6 +140,9 @@
 
 // ---------------------------------------------------------------- Antwortbogen
 
+// Höhe der Lösung inkl. Innenabstand des Feldes (Antwortfelder sind doppelt so hoch).
+#let _loesungshoehe(inhalt, breite) = measure(width: breite - 6mm, inhalt).height + 4mm
+
 #let _antwortfeld(a, loesung) = {
   let l = loesung and a.antwort != none
   if loesung and a.antwort == none {
@@ -160,9 +163,25 @@
       }).flatten(),
     )
   } else if a.art == "freitext" {
-    linienfeld(zeilen: a.zeilen, inhalt: if l { a.antwort })
+    layout(size => {
+      let z = a.zeilen
+      if z == auto {
+        z = if a.antwort == none { 8 } else {
+          calc.max(4, calc.ceil(2 * _loesungshoehe(a.antwort, size.width) / 7.5mm))
+        }
+      }
+      linienfeld(zeilen: z, inhalt: if l { a.antwort })
+    })
   } else {
-    rasterfeld(hoehe: a.hoehe, inhalt: if l { a.antwort })
+    layout(size => {
+      let h = a.hoehe
+      if h == auto {
+        h = if a.antwort == none { 6cm } else {
+          calc.max(3cm, calc.ceil(2 * _loesungshoehe(a.antwort, size.width) / 5mm) * 5mm)
+        }
+      }
+      rasterfeld(hoehe: h, inhalt: if l { a.antwort })
+    })
   }
 }
 
@@ -252,10 +271,9 @@
   v(0.6em)
   {
     grid(
-      columns: (auto, 1fr, auto, 8cm),
+      columns: (auto, 1fr),
       column-gutter: 0.6em,
       [Name:], line(length: 100%, stroke: 0.5pt),
-      [Matrikelnr.:], line(length: 100%, stroke: 0.5pt),
     )
   }
   if hinweise != none {
