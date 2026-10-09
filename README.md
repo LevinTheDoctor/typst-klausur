@@ -1,8 +1,9 @@
 # Typst-Klausur-Template
 
 Template für Klausuren mit Multiple-Choice-, Zuordnungs-, Freitext- und Mathe-Aufgaben.
-Jede Aufgabe bekommt automatisch ein Antwortfeld auf dem **Antwortbogen** am Ende.
-Im PDF springt man per Link von der Aufgabe zum Antwortfeld (`→ Zum Antwortfeld`) und zurück (`↑ Zurück zur Aufgabe`).
+Jede Aufgabe bekommt automatisch ein leeres Antwortfeld auf dem **Antwortbogen** am Ende.
+Danach folgt ein **Lösungsteil** mit den Musterlösungen aus `antwort:`.
+Im PDF springt man per Link von der Aufgabe zum Antwortfeld (`→ Zum Antwortfeld`) und zur Lösung (`→ Zur Lösung`); von dort führt `↑ Zurück zur Aufgabe` zurück.
 
 Ein fertiges Beispiel liegt auf dem Branch `beispiel` (`beispiel.typ`).
 
@@ -32,11 +33,11 @@ Ein fertiges Beispiel liegt auf dem Branch `beispiel` (`beispiel.typ`).
 Kompilieren:
 
 ```sh
-typst compile klausur.typ                          # Klausur (leere Antwortfelder)
-typst compile --input loesungen=true klausur.typ   # Musterlösung
+typst compile klausur.typ                           # mit Lösungsteil
+typst compile --input loesungen=false klausur.typ   # Studierenden-Version ohne Lösungen
 ```
 
-Alternativ `loesungen: true` in `klausur.with(...)` setzen.
+Alternativ `loesungen: false` in `klausur.with(...)` setzen.
 
 ## `klausur.with(...)`
 
@@ -44,7 +45,7 @@ Alternativ `loesungen: true` in `klausur.with(...)` setzen.
 |---|---|
 | `titel`, `fach`, `datum`, `dauer` | Titelkopf |
 | `hinweise` | optionaler Hinweiskasten unter dem Kopf |
-| `loesungen` | `true`/`false`; Standard: `--input loesungen=true`, sonst `false` |
+| `loesungen` | `true`/`false`: Lösungsteil und Lösungs-Links; Standard `true`, abschaltbar mit `--input loesungen=false` |
 
 Die Gesamtpunktzahl wird automatisch aus den Aufgaben berechnet.
 
@@ -56,7 +57,7 @@ Die Gesamtpunktzahl wird automatisch aus den Aufgaben berechnet.
 | `art` | `"mc"`, `"zuordnung"`, `"freitext"` oder `"mathe"` |
 | `punkte` | erreichbare Punkte (Standard 1) |
 | `frage` | Aufgabentext |
-| `antwort` | Musterlösung, nur sichtbar im Lösungsmodus |
+| `antwort` | Musterlösung, erscheint im Lösungsteil |
 | `optionen` | Antwortoptionen (nur `mc`) |
 | `links`, `rechts` | linke und rechte Spalte (nur `zuordnung`) |
 | `zeilen` | Zeilen des Freitextfelds (Standard 8) |
