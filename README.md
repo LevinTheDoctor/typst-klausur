@@ -60,8 +60,8 @@ Die Gesamtpunktzahl wird automatisch aus den Aufgaben berechnet.
 | `antwort` | Musterlösung, erscheint im Lösungsteil |
 | `optionen` | Antwortoptionen (nur `mc`) |
 | `links`, `rechts` | linke und rechte Spalte (nur `zuordnung`) |
-| `zeilen` | Zeilen des Freitextfelds (Standard 8) |
-| `hoehe` | Höhe des Rechenfelds (nur `mathe`, Standard `6cm`) |
+| `zeilen` | Zeilen des Freitextfelds (Standard: doppelt so hoch wie die Lösung) |
+| `hoehe` | Höhe des Rechenfelds (nur `mathe`, Standard: doppelt so hoch wie die Lösung) |
 
 ### Aufgabenarten
 
