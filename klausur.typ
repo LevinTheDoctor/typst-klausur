@@ -3,6 +3,7 @@
 // Doku: siehe README.md
 
 #let _aufgaben = state("klausur-aufgaben", ())
+#let _mit-loesung = state("klausur-mit-loesung", false)
 
 #let _blau = rgb("#1f4e9c")
 #let _gruen = rgb("#1b7a3a")
@@ -12,7 +13,7 @@
 
 #let _punkte-text(p) = if p == 1 [1 Punkt] else [#p Punkte]
 
-/// Ein Ankreuzkästchen; gefuellt = true zeigt ein Kreuz (für Musterlösung).
+/// Ein Ankreuzkästchen; gefuellt = true zeigt ein Kreuz (für die Lösung).
 #let checkbox(gefuellt: false) = box(
   width: 4.5mm,
   height: 4.5mm,
@@ -21,7 +22,7 @@
   if gefuellt { place(center + horizon, text(size: 13pt, weight: "bold", fill: _gruen)[×]) },
 )
 
-/// Liniertes Feld für Freitext. `inhalt` wird (Musterlösung) in das Feld gesetzt.
+/// Liniertes Feld für Freitext. `inhalt` wird (Lösung) in das Feld gesetzt.
 #let linienfeld(zeilen: 8, inhalt: none) = block(
   width: 100%,
   height: zeilen * 7.5mm,
@@ -34,7 +35,7 @@
   },
 )
 
-/// Kariertes Feld für Rechnungen. `inhalt` wird (Musterlösung) in das Feld gesetzt.
+/// Kariertes Feld für Rechnungen. `inhalt` wird (Lösung) in das Feld gesetzt.
 #let rasterfeld(hoehe: 6cm, inhalt: none) = block(
   width: 100%,
   height: hoehe,
@@ -129,7 +130,10 @@
       #line(length: 100%, stroke: 0.5pt + _grau)
       #_aufgaben-koerper(a)
       #v(0.4em)
-      #align(right, text(size: 0.85em, fill: _blau, link(label("ant-" + str(n)))[→ Zum Antwortfeld]))
+      #align(right, text(size: 0.85em, fill: _blau)[
+        #link(label("ant-" + str(n)))[→ Zum Antwortfeld]
+        #if _mit-loesung.get() [ #h(1em) #link(label("lsg-" + str(n)))[→ Zur Lösung]]
+      ])
     ]#label("aufg-" + str(n))]
   }
 }
@@ -138,7 +142,9 @@
 
 #let _antwortfeld(a, loesung) = {
   let l = loesung and a.antwort != none
-  if a.art == "mc" {
+  if loesung and a.antwort == none {
+    text(fill: _grau)[(keine Lösung angegeben)]
+  } else if a.art == "mc" {
     let gewaehlt = if l { a.antwort } else { () }
     for (i, _) in a.optionen.enumerate() {
       box(inset: (right: 1.5em), [#checkbox(gefuellt: i in gewaehlt) #_buchstabe(i)])
@@ -160,11 +166,12 @@
   }
 }
 
-#let _antwortbogen(loesung) = context {
+#let _abschnitt(loesung) = context {
+  let praefix = if loesung { "lsg-" } else { "ant-" }
   let alle = _aufgaben.final()
   if alle.len() > 0 {
     pagebreak()
-    text(size: 1.5em, weight: "bold")[#if loesung [Musterlösung] else [Antwortbogen]]
+    text(size: 1.5em, weight: "bold")[#if loesung [Lösung] else [Antwortbogen]]
     v(0.3em)
     for (i, a) in alle.enumerate() {
       let n = i + 1
@@ -179,7 +186,7 @@
         #_antwortfeld(a, loesung)
         #v(0.2em)
         #align(right, text(size: 0.85em, fill: _blau, link(label("aufg-" + str(n)))[↑ Zurück zur Aufgabe]))
-      ]#label("ant-" + str(n))]
+      ]#label(praefix + str(n))]
     }
   }
 }
@@ -188,8 +195,8 @@
 
 /// Haupt-Template: `#show: klausur.with(...)`
 ///
-/// - loesungen: true = Musterlösung ausgeben. Standard: `--input loesungen=true`
-///   auf der Kommandozeile, sonst false.
+/// - loesungen: true = Lösungsteil am Ende anhängen und in den Aufgaben
+///   verlinken. Standard: an; abschaltbar mit `--input loesungen=false`.
 #let klausur(
   titel: "Klausur",
   fach: "",
@@ -200,12 +207,13 @@
   body,
 ) = {
   let loesung = if loesungen == auto {
-    sys.inputs.at("loesungen", default: "false") == "true"
+    sys.inputs.at("loesungen", default: "true") != "false"
   } else {
     loesungen
   }
 
-  set document(title: titel + if loesung [ – Musterlösung] else [])
+  set document(title: titel)
+  _mit-loesung.update(loesung)
   set page(
     paper: "a4",
     margin: (x: 2.2cm, top: 2.8cm, bottom: 2.4cm),
@@ -231,7 +239,6 @@
       align: (left + horizon, right + horizon),
       [
         #text(size: 1.8em, weight: "bold", titel)
-        #if loesung [#h(0.5em) #text(size: 1.2em, fill: _gruen, weight: "bold")[Musterlösung]]
         #linebreak()
         #text(fill: _grau)[#fach]
       ],
@@ -243,7 +250,7 @@
     )
   ]
   v(0.6em)
-  if not loesung {
+  {
     grid(
       columns: (auto, 1fr, auto, 8cm),
       column-gutter: 0.6em,
@@ -257,5 +264,6 @@
   }
 
   body
-  _antwortbogen(loesung)
+  _abschnitt(false)
+  if loesung { _abschnitt(true) }
 }
